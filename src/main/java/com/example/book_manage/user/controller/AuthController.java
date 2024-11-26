@@ -23,11 +23,11 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody UserDto userDto) {
-        userService.registerUser(userDto.getUsername(),userDto.getEmail(), userDto.getPassword());
-        return ResponseEntity.ok("User registered successfully");
-    }
+//    @PostMapping("/register")
+//    public ResponseEntity<String> register(@RequestBody UserDto userDto) {
+//        userService.registerUser(userDto.getUsername(),userDto.getEmail(), userDto.getPassword());
+//        return ResponseEntity.ok("User registered successfully");
+//    }
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserDto userDto) {
@@ -49,6 +49,7 @@ public class AuthController {
 
         // 회원가입 처리
         userService.signup(userDto);
+        System.out.println("User successfully registered: " + userDto.getUsername());
         return ResponseEntity.ok("회원가입이 완료되었습니다.");
     }
 

@@ -4,7 +4,6 @@ import com.example.book_manage.user.db.UserEntity;
 import com.example.book_manage.user.db.UserRepository;
 import com.example.book_manage.user.model.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,9 +11,9 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+
     @Autowired
     private UserRepository userRepository;
-
 
     private final PasswordEncoder passwordEncoder;
 
@@ -23,21 +22,26 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // 회원 등록 메서드
     public void registerUser(String username, String email, String password) {
         String encodedPassword = passwordEncoder.encode(password);
-        UserEntity user = new UserEntity(username,email, encodedPassword);
+        UserEntity user = new UserEntity(username, email, encodedPassword);
         userRepository.save(user);
     }
 
-    // 로그인
+    // 회원가입 메서드 (UserDto를 인자로 받음)
     public void signup(UserDto userDto) {
-        UserEntity user = new UserEntity();
-        user.setEmail(userDto.getEmail());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword())); // 비밀번호 암호화
-        userRepository.save(user);
+        // username, email, password가 null인지 확인
+        if (userDto.getUsername() == null || userDto.getEmail() == null || userDto.getPassword() == null) {
+            throw new IllegalArgumentException("Username, email, and password must not be null");
+        }
 
-        // 디버깅용 로그 추가
-        System.out.println("Saving user: " + user);
+        String encodedPassword = passwordEncoder.encode(userDto.getPassword());
+        UserEntity user = new UserEntity(userDto.getUsername(), userDto.getEmail(), encodedPassword);
+
+        // 디버깅 로그 추가
+        System.out.println("Attempting to save user: " + user);
+
         userRepository.save(user);
     }
 
@@ -46,8 +50,7 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-
-
+    // 로그인 메서드
     public UserEntity loginUser(String email, String password) {
         Optional<UserEntity> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isPresent()) {
@@ -58,6 +61,8 @@ public class UserService {
         }
         throw new RuntimeException("Invalid email or password");
     }
+
+    // ID로 사용자 찾기
     public Optional<UserEntity> findById(Long id) {
         return userRepository.findById(id);
     }

@@ -11,6 +11,10 @@ public class MainController {
     public String register() {
         return "signup";
     }
+    @GetMapping("/")
+    public String home() {
+        return "login";
+    }
 
     @GetMapping("/login")
     public String login() {

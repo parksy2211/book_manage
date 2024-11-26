@@ -51,6 +51,4 @@ public class BookService {
         // 책 삭제
         bookRepository.delete(book);
     }
-
-
 }
