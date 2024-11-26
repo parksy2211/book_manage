@@ -35,14 +35,15 @@ public class AuthController {
     public ResponseEntity<Object> login(@RequestBody UserDto userDto, HttpSession session) {
         try {
             UserEntity user = userService.loginUser(userDto.getEmail(), userDto.getPassword());
+
+            // SecurityContext에 인증 정보 저장
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // 세션에 사용자 저장
-            session.setAttribute("user", user);
+            // 세션에 사용자 정보 저장
+            session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
-            // JSON 응답
             return ResponseEntity.ok(Map.of(
                     "id", user.getId(),
                     "email", user.getEmail(),
@@ -55,6 +56,7 @@ public class AuthController {
             ));
         }
     }
+
 
 
 
