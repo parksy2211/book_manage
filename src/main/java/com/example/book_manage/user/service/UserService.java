@@ -22,12 +22,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // 회원 등록 메서드
-    public void registerUser(String username, String email, String password) {
-        String encodedPassword = passwordEncoder.encode(password);
-        UserEntity user = new UserEntity(username, email, encodedPassword);
-        userRepository.save(user);
-    }
+
 
     // 회원가입 메서드 (UserDto를 인자로 받음)
     public void signup(UserDto userDto) {
@@ -56,11 +51,17 @@ public class UserService {
         if (optionalUser.isPresent()) {
             UserEntity user = optionalUser.get();
             if (passwordEncoder.matches(password, user.getPassword())) {
+                System.out.println("로그인 성공: " + user.getEmail());
                 return user;
+            } else {
+                System.out.println("비밀번호 불일치: " + email);
             }
+        } else {
+            System.out.println("이메일을 찾을 수 없음: " + email);
         }
         throw new RuntimeException("Invalid email or password");
     }
+
 
     // ID로 사용자 찾기
     public Optional<UserEntity> findById(Long id) {

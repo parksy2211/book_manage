@@ -3,11 +3,17 @@ package com.example.book_manage.user.controller;
 import com.example.book_manage.user.db.UserEntity;
 import com.example.book_manage.user.model.UserDto;
 import com.example.book_manage.user.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -23,17 +29,31 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
-//    @PostMapping("/register")
-//    public ResponseEntity<String> register(@RequestBody UserDto userDto) {
-//        userService.registerUser(userDto.getUsername(),userDto.getEmail(), userDto.getPassword());
-//        return ResponseEntity.ok("User registered successfully");
-//    }
+
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserDto userDto) {
-        UserEntity user = userService.loginUser(userDto.getEmail(), userDto.getPassword());
-        // 세션 설정
-        return ResponseEntity.ok("Login successful");
+    public ResponseEntity<Object> login(@RequestBody UserDto userDto, HttpSession session) {
+        try {
+            UserEntity user = userService.loginUser(userDto.getEmail(), userDto.getPassword());
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // 세션에 사용자 저장
+            session.setAttribute("user", user);
+
+            // JSON 응답
+            return ResponseEntity.ok(Map.of(
+                    "id", user.getId(),
+                    "email", user.getEmail(),
+                    "username", user.getUsername(),
+                    "message", "Login successful"
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "message", "Invalid email or password"
+            ));
+        }
     }
 
 
